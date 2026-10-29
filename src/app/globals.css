@@ -1,0 +1,187 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.208 0.042 265.755);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: var(--primary);
+  --muted: var(--secondary);
+  --muted-foreground: oklch(0.5 0.046 257.417);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.5 0.22 27.325);
+  --success: oklch(0.5 0.15 148);
+  --warning: oklch(0.5 0.14 80);
+  --info: oklch(0.5 0.16 243);
+  --border: oklch(0.929 0.013 255.508);
+  --input: var(--border);
+  --ring: oklch(0.55 0.04 256.788);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: var(--card);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--secondary);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.76 0.15 22.216);
+  --success: oklch(0.74 0.14 148);
+  --warning: oklch(0.8 0.14 80);
+  --info: oklch(0.76 0.13 243);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.7 0.04 264.364);
+  --sidebar: var(--card);
+}
+
+/* Foundation primitives. Consume the semantic aliases below in feature code. */
+@theme {
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --size-2: 0.5rem;
+  --size-3: 0.75rem;
+  --size-4: 1rem;
+  --size-5: 1.25rem;
+  --size-6: 1.5rem;
+  --size-7: 1.75rem;
+  --size-8: 2rem;
+  --size-9: 2.25rem;
+  --size-10: 2.5rem;
+  --size-13: 3.25rem;
+  --size-16: 4rem;
+  --tsize-display: 1.875rem;
+  --tsize-section: 1.25rem;
+  --tsize-module: 0.9375rem;
+  --tsize-body: 0.90625rem;
+  --tsize-supporting: 0.875rem;
+  --tsize-caption: 0.75rem;
+  --tsize-data: 0.78125rem;
+  --tsize-micro: 0.6875rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --text-page-display: var(--tsize-display);
+  --text-page-display--line-height: 2.25rem;
+  --text-page-display--font-weight: 650;
+  --text-page-display--letter-spacing: -0.01em;
+  --text-section: var(--tsize-section);
+  --text-section--line-height: 1.75rem;
+  --text-section--font-weight: 600;
+  --text-module: var(--tsize-module);
+  --text-module--line-height: 1.375rem;
+  --text-module--font-weight: 600;
+  --text-body: var(--tsize-body);
+  --text-body--line-height: 1.4375rem;
+  --text-body-supporting: var(--tsize-supporting);
+  --text-body-supporting--line-height: 1.375rem;
+  --text-caption: var(--tsize-caption);
+  --text-caption--line-height: 1rem;
+  --text-data: var(--tsize-data);
+  --text-data--line-height: 1.125rem;
+  --text-micro: var(--tsize-micro);
+  --text-micro--line-height: 0.875rem;
+  --text-micro--font-weight: 500;
+  --text-micro--letter-spacing: 0.02em;
+
+  --spacing-page-x: var(--size-8);
+  --spacing-page-top: var(--size-7);
+  --spacing-page-x-mobile: var(--size-4);
+  --spacing-section-gap: var(--size-10);
+  --spacing-section-head: var(--size-4);
+  --spacing-group: var(--size-5);
+  --spacing-panel-comfortable: var(--size-6);
+  --spacing-panel-compact: var(--size-3);
+  --spacing-field: var(--size-5);
+  --spacing-inline: var(--size-2);
+  --spacing-control-h: var(--size-9);
+  --spacing-control-h-compact: var(--size-8);
+  --spacing-table-row-compact: var(--size-10);
+  --spacing-row-comfortable: var(--size-13);
+  --spacing-queue-row-min: var(--size-16);
+  --spacing-sidebar: 15rem;
+  --container-reading: 48rem;
+  --shadow-elevated: 0 1px 2px oklch(0 0 0 / 5%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans text-body antialiased;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
