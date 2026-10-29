@@ -3,6 +3,12 @@ import { expect, test, type Page } from "@playwright/test";
 const id = "8cb03ff9-aef6-447a-a5f1-03d391f0ba36";
 
 async function fixture(page: Page) {
+  await page.route("**/api/automation/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/health")) return route.fulfill({ json: { status: "ok" } });
+    if (path.endsWith("/flows")) return route.fulfill({ json: { flows: [] } });
+    return route.fulfill({ json: { agents: [] } });
+  });
   const projects: { id: string; name: string }[] = [];
   await page.route("**/api/backend/**", async (route) => {
     const path = new URL(route.request().url()).pathname.replace("/api/backend/", "");
@@ -118,7 +124,7 @@ for (const width of [320, 390, 1440]) {
   test(`workspaces fit ${width}px without hiding horizontal overflow`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await fixture(page);
-    for (const path of ["/", "/chat", "/settings"]) {
+    for (const path of ["/", "/chat", "/automation", "/settings"]) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(page.getByRole("navigation", { name: "Основная навигация" })).toBeVisible();
