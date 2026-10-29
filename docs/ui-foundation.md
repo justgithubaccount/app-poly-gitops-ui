@@ -79,11 +79,29 @@ initially expose only local appearance preferences and API diagnostics.
 Provider/model selection and credentials remain on FastAPI. This UI never
 collects or persists the optional `userApiKey` field.
 
+## CrewAI contract
+
+Verified `app-poly-gitops-crewai@0835d3102555e6cef4fb700c56969ecddc6f6ddd`:
+`GET /health`, `/flows`, `/agents`; `POST /run` and `/run/{flow_name}`.
+The `/automation` workspace covers these endpoints through `/api/automation`.
+Discovery/health use independent SWR keys and local read states.
+Runs accept `namespace`, optional `app_name` and optional object `context`.
+The UI/proxy reject context keys that override the visible target fields.
+
+Results contain `final_answer`, `steps[{agent,task,output,duration_ms}]` and
+`metadata`, optionally including `total_duration_ms` and `trace_id`. Outputs
+are rendered as plain text, not executable HTML. The API returns steps only
+after completion; it has no run listing, persistence, progress or cancellation.
+Results remain only in the mounted UI, not a fabricated history.
+Manual acknowledgement is mandatory for each submission and is invalidated
+when form inputs change. Backend mutation policy and credentials remain in
+CrewAI; the UI cannot claim that an arbitrary flow is read-only.
+
 The source repository can be public; runtime access is a separate concern.
 The current backend has no authentication/ownership boundary. Local startup
 binds only to loopback. A public multi-user deployment requires an explicit
-backend access contract. CrewAI is a separate service and needs a verified API
-contract before any corresponding UI controls are introduced.
+backend access contract. CrewAI remains a separate service with the verified
+contract above; adding UI controls does not grant cluster access.
 
 ## Code and environment setup
 
@@ -99,11 +117,14 @@ src/components/layout/      responsive application shell
 src/features/projects/      project list/create
 src/features/chat/          composer, messages, request-history inspection
 src/features/settings/      appearance and diagnostics
+src/features/automation/    service catalog, manual runs and result inspection
 src/lib/api/                schemas, client and proxy helpers
 src/lib/async/              shared read-state resolver
 ```
 
 `CHAT_API_URL` and `CHAT_API_TIMEOUT_MS` are server-only runtime variables.
+CrewAI uses separate server-only `CREWAI_API_URL` (unset by default) and
+`CREWAI_API_TIMEOUT_MS` (120000ms, allowed 1000–300000ms).
 The browser uses `/api/backend/...`; the route has a fixed configured upstream
 and a method/path allowlist. It never accepts arbitrary upstream URLs,
 forwards browser credentials or follows redirects. FastAPI uses `detail` for

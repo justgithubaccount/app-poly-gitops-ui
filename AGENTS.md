@@ -15,6 +15,7 @@ the backend limitations and the verification matrix.
 - `src/lib/api/`: backend schemas and one browser client. Validate JSON at this boundary.
 - `src/lib/async/`: shared async-state decisions. A failed request never becomes empty or zero.
 - `src/app/api/backend/`: fixed-upstream, allowlisted proxy; no arbitrary URLs, cookies or credential forwarding.
+- `src/app/api/automation/`: separate fixed CrewAI upstream using the same transport; retain independent route/body validation.
 - LLM calls, storage, model/provider selection and secrets belong to FastAPI.
 
 ## Visual and interaction rules
@@ -33,6 +34,7 @@ the backend limitations and the verification matrix.
 - Named component exports and explicit props; use `cn`, composition and primitive variants.
 - Backend errors use FastAPI `detail`, including 422 arrays. Validate the actual response contract.
 - No automatic retry of POST: the backend has no idempotency contract.
+- Automation runs require fresh explicit acknowledgement after parameter edits and each submission. Timeout/navigation does not cancel upstream work. Never run real flows as an implementation smoke test.
 - No fake streaming, persistent-chat claims, model settings, authentication or writable behavior settings.
   Check the actual backend contract before adding a control.
 

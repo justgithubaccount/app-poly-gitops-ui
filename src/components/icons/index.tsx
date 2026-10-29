@@ -12,6 +12,7 @@ import {
   Send,
   Settings,
   Sun,
+  Workflow,
   type LucideProps,
 } from "lucide-react";
 
@@ -29,6 +30,7 @@ const icons = {
   send: Send,
   settings: Settings,
   light: Sun,
+  automation: Workflow,
 } as const;
 
 export type IconName = keyof typeof icons;

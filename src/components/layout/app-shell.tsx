@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 const navigation: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Проекты", icon: "project" },
   { href: "/chat", label: "Быстрый чат", icon: "chat" },
+  { href: "/automation", label: "Автоматизация", icon: "automation" },
   { href: "/settings", label: "Настройки", icon: "settings" },
 ];
 
@@ -29,7 +30,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <AppIcon name="chat" className="size-5" /> Chat API
         </Link>
-        <nav aria-label="Основная навигация" className="flex gap-inline md:mt-group md:flex-col">
+        <nav
+          aria-label="Основная навигация"
+          className="flex flex-wrap gap-inline md:mt-group md:flex-col"
+        >
           {navigation.map((item) => {
             const active =
               item.href === "/"
