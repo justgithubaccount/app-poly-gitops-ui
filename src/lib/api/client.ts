@@ -22,12 +22,13 @@ function errorDetail(body: unknown, status: number): string {
   return `API вернул ошибку ${status}`;
 }
 
-export async function apiRequest<T>(
+async function requestService<T>(
+  service: "backend" | "automation",
   path: string,
   schema: z.ZodType<T>,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`/api/backend/${path}`, {
+  const response = await fetch(`/api/${service}/${path}`, {
     ...init,
     headers: { ...(init?.body ? { "Content-Type": "application/json" } : {}), ...init?.headers },
     cache: "no-store",
@@ -37,4 +38,16 @@ export async function apiRequest<T>(
   const parsed = schema.safeParse(body);
   if (!parsed.success) throw new ApiError("Ответ API не соответствует контракту", 502);
   return parsed.data;
+}
+
+export function apiRequest<T>(path: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
+  return requestService("backend", path, schema, init);
+}
+
+export function automationRequest<T>(
+  path: string,
+  schema: z.ZodType<T>,
+  init?: RequestInit,
+): Promise<T> {
+  return requestService("automation", path, schema, init);
 }
