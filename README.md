@@ -1,16 +1,32 @@
-# app-poly-gitops-ui
+# Chat API UI
 
-Отдельный UI для [app-poly-gitops-fastapi](https://github.com/justgithubaccount/app-poly-gitops-fastapi):
-проекты, быстрый чат, чат проекта, просмотр истории запросов и диагностика API.
-Раздел «Автоматизация» подключает отдельный
-[CrewAI backend](https://github.com/justgithubaccount/app-poly-gitops-crewai).
-Семантические дизайн-токены, общие компоненты, light/dark/system,
-адаптивная раскладка и явные состояния данных.
+Standalone Next.js frontend for
+[app-poly-gitops-fastapi](https://github.com/justgithubaccount/app-poly-gitops-fastapi)
+and its companion
+[CrewAI service](https://github.com/justgithubaccount/app-poly-gitops-crewai).
+It provides projects, chat, successful transcript inspection, API diagnostics,
+and manual automation runs.
 
-## Локальный запуск
+## Overview
 
-Нужны Node.js 24, npm 11.19.1 и запущенный FastAPI на `http://127.0.0.1:8000`.
-В этом репозитории не нужны облачные ресурсы или LLM-ключи.
+The browser talks only to fixed, allowlisted Next.js proxy routes. Backend URLs
+are server-only configuration; provider credentials and model selection remain
+in FastAPI or CrewAI.
+
+- Projects and chat use `/api/backend/...`.
+- Automation discovery and runs use the separate `/api/automation/...` proxy.
+- Project history contains successful submitted messages and assistant replies
+  returned by the current FastAPI contract.
+- FastAPI provider failures are surfaced as HTTP `502` errors.
+- Automation is synchronous and has no run history, progress stream, or
+  cancellation contract.
+
+The source can be public, but the services do not implement a multi-user
+authentication or ownership boundary. Local startup binds to loopback.
+
+## Getting started
+
+Requirements: Node.js 24, npm 11.19.1, and a running Chat API.
 
 ```bash
 nvm use
@@ -19,86 +35,57 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Открыть [http://127.0.0.1:3100](http://127.0.0.1:3100).
-`CHAT_API_URL` задаёт upstream на сервере UI; браузер использует только
-ограниченный `/api/backend/...` proxy. `CHAT_API_TIMEOUT_MS` по умолчанию 70000.
-LLM-провайдер, URL модели и ключ настраиваются в FastAPI, а не в браузере.
+Open [http://127.0.0.1:3100](http://127.0.0.1:3100).
 
-## Автоматизация / CrewAI
-
-На `/automation` доступны список flows и агентов, проверка подключения,
-ручной запуск выбранного flow или серверного варианта по умолчанию.
-Параметры: namespace, необязательное имя приложения и JSON-контекст.
-Результат содержит итоговый ответ, шаги с агентами/задачами и длительностью,
-метаданные и trace ID, если он пришёл от сервиса.
-
-Настройте **на сервере UI**, когда CrewAI запущен:
+`CHAT_API_URL` defaults to `http://127.0.0.1:8000`. To enable the automation
+workspace, set the CrewAI upstream on the UI server:
 
 ```dotenv
 CREWAI_API_URL=http://127.0.0.1:8001
 CREWAI_API_TIMEOUT_MS=120000
 ```
 
-URL не попадает в браузер; используется ограниченный `/api/automation/...`
-proxy. Если CrewAI не подключён, интерфейс покажет ошибку подключения,
-а проекты и чат продолжат работать независимо.
+Every automation submission requires fresh acknowledgement. Changing parameters
+or completing a submission clears it. A UI timeout or navigation does not cancel
+upstream execution, and POST requests are never retried automatically.
 
-Каждый запуск требует подтверждения: flow может обращаться к платной модели,
-менять инфраструктуру или создавать issues. Подтверждение сбрасывается при
-изменении параметров и после отправки. Контекст не может переопределять
-`namespace` и `app_name`; секреты остаются в CrewAI, не в форме.
-
-API синхронный: шаги приходят после завершения. Истории запусков, живого
-прогресса и отмены в нём нет. Уход со страницы или таймаут UI не отменяют
-серверное выполнение; автоматического повтора POST нет. Результат на экране
-не сохраняется после ухода/перезагрузки. Дедлайн proxy — от 1000 до 300000 мс.
-
-## Проверки
+## Development
 
 ```bash
-npm run check          # типы, ESLint, unit/contract tests
+npm run check
 npm run format:check
 npm run build
 npx playwright install chromium
-npm run test:e2e       # браузерные тесты с явно заданными API fixtures
-npm run test:integration:automation # настоящий proxy + отдельный loopback HTTP fixture
+npm run test:e2e
+npm run test:integration:automation
 ```
 
-Browser-тесты запускают production build на 3100. Бэкенд и провайдер для них
-не нужны: эти проверки подтверждают UI-контракт, а не работу реального LLM.
-`npm run start` также слушает только loopback; публикация требует отдельного
-решения о доступе и настройке запуска.
+Browser tests use explicit fixtures and do not call a paid model. The optional
+`tests/integration/real-backend.mjs` path runs the real FastAPI service against
+the loopback provider in `tests/fixtures/llm-stub.py`.
 
-Если Chromium уже установлен как Google Chrome, можно использовать
-`PLAYWRIGHT_CHANNEL=chrome npm run test:e2e`. CI ставит Chromium из Playwright.
-Для отдельной полной локальной проверки есть
-`tests/fixtures/llm-stub.py` и `tests/integration/real-backend.mjs`:
-запустите fixture на 8131, настоящий FastAPI на 8130 с отдельной SQLite DB,
-`OPENROUTER_API_URL=http://127.0.0.1:8131/chat/completions` и тестовым ключом,
-а UI — с `CHAT_API_URL=http://127.0.0.1:8130`. Затем выполните
-`node tests/integration/real-backend.mjs`. Эта проверка использует настоящий
-FastAPI и proxy, но подменяет только провайдера, поэтому платных LLM-вызовов нет.
+## Repository structure
 
-## Границы текущего бэка
+- `src/app/` — routes, layouts, and fixed-upstream proxies
+- `src/features/` — projects, chat, settings, and automation workspaces
+- `src/lib/api/` — validated API schemas, clients, and proxy boundaries
+- `src/components/` — shared UI primitives and application shell
+- `tests/` — browser, integration, and provider fixtures
 
-Ответы текущего сеанса находятся в памяти вкладки. FastAPI сохраняет
-снимки входных запросов перед вызовом модели, а не отдельные диалоги с
-полной историей ответов. В UI они подписаны «История запросов».
-Есть LLM-ошибки, которые бэк возвращает как HTTP 200 с текстовым `reply`;
-надёжная классификация таких ошибок требует изменения API.
+## Documentation
 
-Настройки UI сейчас — тема и диагностика. API изменения модели/провайдера,
-streaming, отдельные диалоги и auth не добавлены этим setup.
-`/health` проверяет доступность сервиса, а не провайдера модели.
+- [UI foundation](docs/ui-foundation.md) — visual model, code boundaries, and API contracts
+- [Validation](docs/validation.md) — initial frontend and FastAPI integration evidence
+- [Automation validation](docs/automation-validation.md) — CrewAI UI and proxy evidence
+- [AGENTS.md](AGENTS.md) — repository working rules
 
-## Проектные правила
+## Related repositories
 
-- [AGENTS.md](AGENTS.md) — единые инструкции Codex и Claude; [CLAUDE.md](CLAUDE.md) — тонкий совместимый вход.
-- [docs/ui-foundation.md](docs/ui-foundation.md) — дизайн-профиль, архитектура, API-карта и критерии проверки.
-- `src/components/ui/` — официальные shadcn/Radix-примитивы; feature-код использует семантический `AppIcon`.
-- `src/lib/api/` — Zod-контракты и единый клиент; `src/lib/async/` — общая модель состояния чтения.
+- [app-poly-gitops-fastapi](https://github.com/justgithubaccount/app-poly-gitops-fastapi) — chat backend
+- [app-poly-gitops-crewai](https://github.com/justgithubaccount/app-poly-gitops-crewai) — automation backend
+- [app-poly-gitops-k8s](https://github.com/justgithubaccount/app-poly-gitops-k8s) — GitOps desired state
+- [app-mono-gitops](https://github.com/justgithubaccount/app-mono-gitops) — archived predecessor
 
-Репозитории backend, CrewAI, Helm, GitOps и provisioning остаются отдельными
-частями стека. Этот репозиторий не поднимает кластер и не меняет их настройки.
-Публичность исходников не означает готовность публичного runtime: у текущих
-сервисов нет пользовательской авторизации. Локальный UI слушает loopback.
+## License
+
+MIT

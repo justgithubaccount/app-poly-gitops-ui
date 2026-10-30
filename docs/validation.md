@@ -3,6 +3,13 @@
 Self-check of the initial UI implementation. Cloud deployment and real-provider
 requests are outside this record.
 
+This is dated evidence for the initial backend revision named below, not a
+statement of the current FastAPI contract. The current contract is maintained in
+[ui-foundation.md](ui-foundation.md): successful project history now includes the
+assistant reply and provider failures return HTTP 502. The integration fixture and
+UI copy still encode the older history expectation and require a functional
+follow-up before this check can be rerun against current FastAPI `main`.
+
 | Check                                                               | Result                                                                      |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `npx --yes npm@11.19.1 ci`                                          | PASS: clean install from a lockfile generated without existing node_modules |
@@ -46,5 +53,5 @@ selection without rails, bounded reading width, unclipped mobile navigation,
 shared controls and clear empty/error/request-evidence text.
 
 This record is a self-check, not independent review or evidence of a deployed
-service. Backend provider-error and persistence limitations are documented
-in [ui-foundation.md](ui-foundation.md).
+service. Current backend boundaries are documented in
+[ui-foundation.md](ui-foundation.md).
