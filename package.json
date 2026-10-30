@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:integration:automation": "node tests/integration/automation-proxy.mjs",
+    "test:integration:backend": "node tests/integration/real-backend.mjs",
     "check": "npm run typecheck && npm run lint && npm test",
     "format:check": "prettier --check .",
     "format": "prettier --write ."

@@ -61,8 +61,10 @@ npm run test:integration:automation
 ```
 
 Browser tests use explicit fixtures and do not call a paid model. The optional
-`tests/integration/real-backend.mjs` path runs the real FastAPI service against
-the loopback provider in `tests/fixtures/llm-stub.py`.
+`npm run test:integration:backend` path runs against separately started UI and
+FastAPI processes using the loopback provider in `tests/fixtures/llm-stub.py`.
+It is intentionally not part of CI because it orchestrates sibling-repository
+processes; it never needs a live provider key.
 
 ## Repository structure
 

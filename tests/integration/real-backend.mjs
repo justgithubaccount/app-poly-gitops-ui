@@ -47,10 +47,7 @@ try {
   await page.goto(`${base}${projectPath}`);
   await page.getByText("История запросов проекта", { exact: true }).click();
   await expect(page.getByText(/user: Проверка приложения/)).toBeVisible();
-  // The backend stored only the input; do not pretend the reply persisted.
-  await expect(
-    page.getByText("Локальная проверка: Проверка приложения", { exact: true }),
-  ).toHaveCount(0);
+  await expect(page.getByText(/assistant: Локальная проверка: Проверка приложения/)).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: `${destination}/project-mobile-dark.png`, fullPage: true });
   expect(errors).toEqual([]);
@@ -58,7 +55,7 @@ try {
     JSON.stringify({
       result: "PASS",
       stack: "browser -> Next proxy -> real FastAPI -> explicit loopback LLM fixture",
-      persistedRequestVerified: true,
+      persistedTranscriptVerified: true,
       provider: "fixture",
       projectPath,
       screenshots: destination,

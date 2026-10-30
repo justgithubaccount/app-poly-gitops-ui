@@ -5,10 +5,9 @@ requests are outside this record.
 
 This is dated evidence for the initial backend revision named below, not a
 statement of the current FastAPI contract. The current contract is maintained in
-[ui-foundation.md](ui-foundation.md): successful project history now includes the
-assistant reply and provider failures return HTTP 502. The integration fixture and
-UI copy still encode the older history expectation and require a functional
-follow-up before this check can be rerun against current FastAPI `main`.
+[ui-foundation.md](ui-foundation.md): successful project history includes the
+assistant reply and provider failures return HTTP 502. The optional
+`npm run test:integration:backend` fixture now checks that current contract.
 
 | Check                                                               | Result                                                                      |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -34,10 +33,10 @@ Browser → Next route handler → public backend
 is disabled and its SQLite database is disposable. There are no browser API
 mocks in this check and no real provider credentials are used.
 
-The UI creates a project, displays a reply and reloads the saved input request
-after reopening the route. It explicitly verifies that the assistant response
-does not reappear after reload, matching the backend's current persistence
-contract. Health 200 and optional behavior 404 are also checked.
+The UI creates a project, displays a reply and reloads the successful transcript
+after reopening the route. The current integration fixture verifies that both
+the submitted message and assistant reply persist. Health 200 and optional
+behavior 404 are also checked.
 
 A regression covers Next's internal hostname differing from the browser Host.
 The proxy accepts valid same-origin POSTs while rejecting cross-origin writes.
