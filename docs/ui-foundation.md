@@ -48,30 +48,29 @@ invent zero counts, silently substitute fixtures or automatically retry POST.
 
 Inspected public backend:
 [`app-poly-gitops-fastapi`](https://github.com/justgithubaccount/app-poly-gitops-fastapi)
-at `6686997d9c4e8d6815886790341d5e185f86bf1a`.
+at `276aa68a49c3aa740236e4f9528e5a9d984ced8b`.
 
-| UI              | Method and path                     | Shape / boundary                                                       |
-| --------------- | ----------------------------------- | ---------------------------------------------------------------------- |
-| Projects        | `GET /api/v1/projects`              | `[{id, name}]`; no timestamps, counts or paging                        |
-| Create project  | `POST /api/v1/projects`             | `{name}` → `{id, name}`, status 200                                    |
-| Quick chat      | `POST /api/v1/chat`                 | `{messages:[{role,content}]}` → `{reply}`                              |
-| Project chat    | `POST /api/v1/projects/{id}/chat`   | same request/response; caller supplies conversation context            |
-| Request history | `GET /api/v1/projects/{id}/history` | request snapshots with messages, timestamp and nullable trace/span IDs |
-| Behavior        | `GET /api/v1/behavior/schema`       | optional read-only schema; 404 means not loaded                        |
-| Connectivity    | `GET /health`, `GET /`              | liveness/service metadata, not provider readiness                      |
+| UI              | Method and path                     | Shape / boundary                                                  |
+| --------------- | ----------------------------------- | ----------------------------------------------------------------- |
+| Projects        | `GET /api/v1/projects`              | `[{id, name}]`; no timestamps, counts or paging                   |
+| Create project  | `POST /api/v1/projects`             | `{name}` → `{id, name}`, status 200                               |
+| Quick chat      | `POST /api/v1/chat`                 | `{messages:[{role,content}]}` → `{reply}`                         |
+| Project chat    | `POST /api/v1/projects/{id}/chat`   | same request/response; caller supplies conversation context       |
+| Project history | `GET /api/v1/projects/{id}/history` | successful transcripts with timestamp and nullable trace/span IDs |
+| Behavior        | `GET /api/v1/behavior/schema`       | optional read-only schema; 404 means not loaded                   |
+| Connectivity    | `GET /health`, `GET /`              | liveness/service metadata, not provider readiness                 |
 
 The backend currently has no separate Conversation entity, chat listing,
 delete/rename, streaming, user/session ownership or writable settings API.
-Project history is saved before the model call and contains input messages;
-the returned assistant reply is not appended. Multiple submissions can contain
-overlapping transcript snapshots and a failed call can leave a history entry.
-Display request snapshots separately instead of fabricating a persistent chat.
+Project history is saved after a successful model call and contains the submitted
+messages followed by the assistant reply. Provider failures are not persisted.
+Each submission is still an independent transcript snapshot rather than a
+Conversation entity; callers provide any preceding context with the next request.
 
 Chat responses contain only `reply`; trace IDs and token usage are not returned
 directly. Show trace/span IDs only when history actually supplies them.
-Provider failures can be converted by the backend to HTTP 200 text replies;
-reliable provider-error classification requires a backend contract change.
-HTTP errors and malformed successful responses are validated in the UI client.
+Provider failures return HTTP 502 with a FastAPI `detail` payload. Other HTTP
+errors and malformed successful responses are validated in the UI client.
 
 The standard lifespan does not install `BehaviorManager`, so behavior 404 is
 an expected unconfigured result. This does not prove chat failure. Settings
@@ -81,7 +80,7 @@ collects or persists the optional `userApiKey` field.
 
 ## CrewAI contract
 
-Verified `app-poly-gitops-crewai@0835d3102555e6cef4fb700c56969ecddc6f6ddd`:
+Verified `app-poly-gitops-crewai@c64cdfa939058c6e763a3d6bfa46f64392f6cdb6`:
 `GET /health`, `/flows`, `/agents`; `POST /run` and `/run/{flow_name}`.
 The `/automation` workspace covers these endpoints through `/api/automation`.
 Discovery/health use independent SWR keys and local read states.
